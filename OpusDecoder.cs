@@ -8,19 +8,11 @@ namespace POpusCodec
 {
     public class OpusDecoder : IDisposable
     {
+        public const int MaxFrameSize = 5760;
+
         private IntPtr _handle = IntPtr.Zero;
-        private string _version = string.Empty;
-        private const int MaxFrameSize = 5760;
         private bool _previousPacketInvalid = false;
         private int _channelCount = 2;
-
-        public string Version
-        {
-            get
-            {
-                return _version;
-            }
-        }
 
         private Bandwidth? _previousPacketBandwidth = null;
 
@@ -50,7 +42,6 @@ namespace POpusCodec
 
             _channelCount = (int)numChannels;
             _handle = Wrapper.opus_decoder_create(outputSamplingRateHz, numChannels);
-            _version = Wrapper.opus_get_version();
 
             if (_handle == IntPtr.Zero)
             {
@@ -75,13 +66,22 @@ namespace POpusCodec
             return pcm;
         }
 
+        public int DecodePacketLostFloat(float[] decodedSamples, int count)
+        {
+            _previousPacketInvalid = true;
+
+            int numSamplesDecoded = Wrapper.opus_decode(_handle, null, 0, decodedSamples, 0, _channelCount, count);
+
+            return numSamplesDecoded;
+        }
+
         public float[] DecodePacketLostFloat()
         {
             _previousPacketInvalid = true;
 
             float[] tempData = new float[MaxFrameSize * _channelCount];
 
-            int numSamplesDecoded = Wrapper.opus_decode(_handle, null, tempData, 0, _channelCount);
+            int numSamplesDecoded = Wrapper.opus_decode(_handle, null, 0, tempData, 0, _channelCount);
 
             if (numSamplesDecoded == 0)
                 return new float[] { };
@@ -110,7 +110,7 @@ namespace POpusCodec
             {
                 _previousPacketBandwidth = (Bandwidth)bandwidth;
                 numSamplesDecoded = Wrapper.opus_decode(_handle, packetData, tempData, _previousPacketInvalid ? 1 : 0, _channelCount);
-
+                
                 _previousPacketInvalid = false;
             }
 
@@ -123,60 +123,35 @@ namespace POpusCodec
             return pcm;
         }
 
-        public float[] DecodePacketFloat(byte[] packetData)
+        public int DecodePacketFloat(byte[] packetData, int count, float[] decodedSamples)
         {
-            float[] tempData = new float[MaxFrameSize * _channelCount];
-
             int bandwidth = Wrapper.opus_packet_get_bandwidth(packetData);
 
             int numSamplesDecoded = 0;
 
             if (bandwidth == (int)OpusStatusCode.InvalidPacket)
             {
-                numSamplesDecoded = Wrapper.opus_decode(_handle, null, tempData, 0, _channelCount);
+                numSamplesDecoded = Wrapper.opus_decode(_handle, null, 0, decodedSamples, 0, _channelCount);
                 _previousPacketInvalid = true;
             }
             else
             {
                 _previousPacketBandwidth = (Bandwidth)bandwidth;
-                numSamplesDecoded = Wrapper.opus_decode(_handle, packetData, tempData, _previousPacketInvalid ? 1 : 0, _channelCount);
+                numSamplesDecoded = Wrapper.opus_decode(_handle, packetData, count, decodedSamples, _previousPacketInvalid ? 1 : 0, _channelCount);
 
                 _previousPacketInvalid = false;
             }
 
-            if (numSamplesDecoded == 0)
-                return new float[] { };
-
-            float[] pcm = new float[numSamplesDecoded * _channelCount];
-            Buffer.BlockCopy(tempData, 0, pcm, 0, pcm.Length * sizeof(float));
-
-            return pcm;
+            return numSamplesDecoded;
         }
-
-        private bool disposed = false;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
             if (_handle != IntPtr.Zero)
             {
                 Wrapper.opus_decoder_destroy(_handle);
                 _handle = IntPtr.Zero;
             }
-            disposed = true;
-        }
-
-        ~OpusDecoder()
-        {
-            Dispose(false);
         }
     }
 }
