@@ -18,6 +18,11 @@ namespace POpusCodec
             }
         }
 
+        public OpusException(OpusStatusCode statusCode) : base(statusCode.ToString())
+        {
+
+        }
+
         public OpusException(OpusStatusCode statusCode, string message)
             : base(message)
         {

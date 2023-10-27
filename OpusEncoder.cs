@@ -12,7 +12,7 @@ namespace POpusCodec
 
         private IntPtr _handle = IntPtr.Zero;
         private string _version = string.Empty;
-        private const int RecommendedMaxPacketSize = 4000;
+        public const int RecommendedMaxPacketSize = 4000;
         private int _frameSizePerChannel = 960;
         private SamplingRate _inputSamplingRate = SamplingRate.Sampling48000;
         private Channels _inputChannels = Channels.Stereo;
@@ -34,15 +34,15 @@ namespace POpusCodec
         }
 
 
-        private byte[] writePacket = new byte[RecommendedMaxPacketSize];
+        //private byte[] writePacket = new byte[RecommendedMaxPacketSize];
 
-        public string Version
+        /*public string Version
         {
             get
             {
                 return _version;
             }
-        }
+        }*/
 
         private Delay _encoderDelay = Delay.Delay20ms;
 
@@ -179,14 +179,18 @@ namespace POpusCodec
         }
 
         public OpusEncoder(SamplingRate inputSamplingRateHz, Channels numChannels)
-            : this(inputSamplingRateHz, numChannels,  OpusApplicationType.Audio, Delay.Delay20ms)
+            : this(inputSamplingRateHz, numChannels,  120000, OpusApplicationType.Audio, Delay.Delay20ms)
         { }
 
-        public OpusEncoder(SamplingRate inputSamplingRateHz, Channels numChannels, OpusApplicationType applicationType)
-            : this(inputSamplingRateHz, numChannels, applicationType, Delay.Delay20ms)
+        public OpusEncoder(SamplingRate inputSamplingRateHz, Channels numChannels, int bitrate)
+            : this(inputSamplingRateHz, numChannels, bitrate, OpusApplicationType.Audio, Delay.Delay20ms)
         { }
 
-        public OpusEncoder(SamplingRate inputSamplingRateHz, Channels numChannels, OpusApplicationType applicationType, Delay encoderDelay)
+        public OpusEncoder(SamplingRate inputSamplingRateHz, Channels numChannels, int bitrate, OpusApplicationType applicationType)
+            : this(inputSamplingRateHz, numChannels, bitrate, applicationType, Delay.Delay20ms)
+        { }
+
+        public OpusEncoder(SamplingRate inputSamplingRateHz, Channels numChannels, int bitrate, OpusApplicationType applicationType, Delay encoderDelay)
         {
             if ((inputSamplingRateHz != SamplingRate.Sampling08000)
                 && (inputSamplingRateHz != SamplingRate.Sampling12000)
@@ -220,7 +224,7 @@ namespace POpusCodec
             _inputSamplingRate = inputSamplingRateHz;
             _inputChannels = numChannels;
             _handle = Wrapper.opus_encoder_create(inputSamplingRateHz, numChannels, applicationType);
-            _version = Wrapper.opus_get_version();
+            //_version = Wrapper.opus_get_version_string();
 
             if (_handle == IntPtr.Zero)
             {
@@ -228,60 +232,36 @@ namespace POpusCodec
             }
 
             EncoderDelay = encoderDelay;
+            Bitrate = bitrate;
         }
 
-        public byte[] Encode(short[] pcmSamples) //pcmSamples: length is frame_size*channels*sizeof(short) 
+        public int Encode(short[] pcmSamples, byte[] encodedData) //pcmSamples: length is frame_size*channels*sizeof(short) 
         {
-            int size = Wrapper.opus_encode(_handle, pcmSamples, _frameSizePerChannel, writePacket);
+            int size = Wrapper.opus_encode(_handle, pcmSamples, _frameSizePerChannel, encodedData);
 
             if (size <= 1) //DTX. Negative already handled at this point
-                return new byte[] { };
+                return 0;
 
-            byte[] encodedData = new byte[size];
-
-            Buffer.BlockCopy(writePacket, 0, encodedData, 0, encodedData.Length);
-
-            return encodedData;
+            return size;
         }
 
-        public byte[] Encode(float[] pcmSamples)
+        public int Encode(float[] pcmSamples, int count, byte[] encodedData)
         {
-            int size = Wrapper.opus_encode(_handle, pcmSamples, _frameSizePerChannel, writePacket);
+            int size = Wrapper.opus_encode(_handle, pcmSamples, count, encodedData);
 
             if (size <= 1) //DTX. Negative already handled at this point
-                return new byte[] { };
+                return 0;
 
-            byte[] encodedData = new byte[size];
-
-            Buffer.BlockCopy(writePacket, 0, encodedData, 0, encodedData.Length);
-
-            return encodedData;
+            return size;
         }
-
-        private bool disposed = false;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
             if (_handle != IntPtr.Zero)
             {
                 Wrapper.opus_encoder_destroy(_handle);
                 _handle = IntPtr.Zero;
             }
-            disposed = true;
-        }
-
-        ~OpusEncoder()
-        {
-            Dispose(false);
         }
     }
 }
