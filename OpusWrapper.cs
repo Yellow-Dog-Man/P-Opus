@@ -9,19 +9,16 @@ namespace POpusCodec
 {
     internal class Wrapper
     {
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        const string LIBFILE = "opus";
+
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_encoder_get_size(Channels channels);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern OpusStatusCode opus_encoder_init(IntPtr st, SamplingRate Fs, Channels channels, OpusApplicationType application);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern IntPtr opus_get_version_string();
-
-        public static string opus_get_version()
-        {
-            return Marshal.PtrToStringAuto(opus_get_version_string());
-        }
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr opus_get_version_string();
 
         public static IntPtr opus_encoder_create(SamplingRate Fs, Channels channels, OpusApplicationType application)
         {
@@ -48,7 +45,7 @@ namespace POpusCodec
             return ptr;
         }
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_encode(IntPtr st, short[] pcm, int frame_size, byte[] data, int max_data_bytes);
 
         public static int opus_encode(IntPtr st, short[] pcm, int frame_size, byte[] data)
@@ -66,7 +63,7 @@ namespace POpusCodec
             return payloadLength;
         }
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_encode_float(IntPtr st, float[] pcm, int frame_size, byte[] data, int max_data_bytes);
 
         public static int opus_encode(IntPtr st, float[] pcm, int frame_size, byte[] data)
@@ -89,10 +86,10 @@ namespace POpusCodec
             Marshal.FreeHGlobal(st);
         }
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_encoder_ctl(IntPtr st, OpusCtlSetRequest request, int value);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_encoder_ctl(IntPtr st, OpusCtlGetRequest request, ref int value);
 
         public static int get_opus_encoder_ctl(IntPtr st, OpusCtlGetRequest request)
@@ -118,10 +115,10 @@ namespace POpusCodec
             HandleStatusCode(statusCode);
         }
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_decoder_get_size(Channels channels);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern OpusStatusCode opus_decoder_init(IntPtr st, SamplingRate Fs, Channels channels);
 
         public static IntPtr opus_decoder_create(SamplingRate Fs, Channels channels)
@@ -155,16 +152,16 @@ namespace POpusCodec
         }
 
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_decode(IntPtr st, byte[] data, int len, short[] pcm, int frame_size, int decode_fec);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_decode_float(IntPtr st, byte[] data, int len, float[] pcm, int frame_size, int decode_fec);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_decode(IntPtr st, IntPtr data, int len, short[] pcm, int frame_size, int decode_fec);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int opus_decode_float(IntPtr st, IntPtr data, int len, float[] pcm, int frame_size, int decode_fec);
 
 
@@ -195,7 +192,7 @@ namespace POpusCodec
             return numSamplesDecoded;
         }
 
-        public static int opus_decode(IntPtr st, byte[] data, float[] pcm, int decode_fec, int channels)
+        public static int opus_decode(IntPtr st, byte[] data, int count, float[] pcm, int decode_fec, int channels, int? overridePcmLength = null)
         {
             if (st == IntPtr.Zero)
                 throw new ObjectDisposedException("OpusDecoder");
@@ -204,11 +201,11 @@ namespace POpusCodec
 
             if (data != null)
             {
-                numSamplesDecoded = opus_decode_float(st, data, data.Length, pcm, pcm.Length / channels, decode_fec);
+                numSamplesDecoded = opus_decode_float(st, data, count, pcm, (overridePcmLength ?? pcm.Length) / channels, decode_fec);
             }
             else
             {
-                numSamplesDecoded = opus_decode_float(st, IntPtr.Zero, 0, pcm, pcm.Length / channels, decode_fec);
+                numSamplesDecoded = opus_decode_float(st, IntPtr.Zero, 0, pcm, (overridePcmLength ?? pcm.Length) / channels, decode_fec);
             }
 
             if (numSamplesDecoded == (int)OpusStatusCode.InvalidPacket)
@@ -223,25 +220,21 @@ namespace POpusCodec
         }
 
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int opus_packet_get_bandwidth(byte[] data);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int opus_packet_get_nb_channels(byte[] data);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern IntPtr opus_strerror(OpusStatusCode error);
+        [DllImport(LIBFILE, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern string opus_strerror(OpusStatusCode error);
 
-        private static string opus_error(OpusStatusCode error)
-        {
-            return Marshal.PtrToStringAuto(opus_strerror(error));
-        }
 
         private static void HandleStatusCode(OpusStatusCode statusCode)
         {
             if (statusCode != OpusStatusCode.OK)
             {
-                throw new OpusException(statusCode, opus_error(statusCode));
+                throw new OpusException(statusCode/*, opus_strerror(statusCode)*/);
             }
         }
     }
