@@ -1,0 +1,27 @@
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.NUGET_TOKEN }}
+    - name: Build Solution
+      run: |
+        msbuild.exe POpusCodec.csproj /nologo
