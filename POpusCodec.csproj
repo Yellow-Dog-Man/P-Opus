@@ -12,7 +12,6 @@
     <PackageTags>Opus Codec Audio</PackageTags>
     <NuspecFile>POpusCodec.nuspec</NuspecFile>
     <NuspecProperties>version=$(Version)</NuspecProperties>
-    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
