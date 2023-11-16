@@ -1,0 +1,25 @@
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  buildWindows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET 7
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+      - name: Build
+        run: |
+          dotnet restore POpusCodec.csproj
+          dotnet build POpusCodec.csproj --configuration Release
