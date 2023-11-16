@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>YellowDogMan.POpusCodec</id>
+    <version>$version$</version>
+    <authors>Yellow Dog Man Studios S.r.o.</authors>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/Yellow-Dog-Man/P-Opus</projectUrl>
+    <description>Fork of https://github.com/jasl8r/P-Opus</description>
+    <copyright>Yellow Dog Man Studios s.r.o. 2023</copyright>
+    <dependencies>
+      <group targetFramework=".NETFramework3.5" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src=".\bin\Release\POpusCodec.dll" target="lib\net35\"/>
+    <file src=".\bin\Release\opus.dll" target="runtimes\win-x64\native\" />
+  </files>
+</package>

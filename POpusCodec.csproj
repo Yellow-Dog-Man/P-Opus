@@ -1,5 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Company>Yellow Dog Man Studios s.r.o.</Company>
+    <Authors>Yellow Dog Man Studios</Authors>
+    <PackageId>YellowDogMan.POpusCodec</PackageId>
+    <Description>Fork of https://github.com/jasl8r/P-Opus</Description>
+    <Copyright>Copyright (c) 2023 Yellow Dog Man Studios s.r.o.</Copyright>
+    <RepositoryUrl>https://github.com/Yellow-Dog-Man/P-Opus</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectURL>https://https://github.com/Yellow-Dog-Man/P-Opus</PackageProjectURL>
+    <PackageTags>Opus Codec Audio</PackageTags>
+    <NuspecFile>POpusCodec.nuspec</NuspecFile>
+    <NuspecProperties>version=$(Version)</NuspecProperties>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +24,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>POpusCodec</RootNamespace>
     <AssemblyName>POpusCodec</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworks>net35</TargetFrameworks>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -42,35 +56,14 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Enums\Bandwidth.cs" />
-    <Compile Include="Enums\Channels.cs" />
-    <Compile Include="Enums\Complexity.cs" />
-    <Compile Include="Enums\Delay.cs" />
-    <Compile Include="Enums\ForceChannels.cs" />
-    <Compile Include="Enums\OpusApplicationType.cs" />
-    <Compile Include="Enums\OpusCtlGetRequest.cs" />
-    <Compile Include="Enums\OpusCtlSetRequest.cs" />
-    <Compile Include="Enums\OpusStatusCode.cs" />
-    <Compile Include="Enums\SamplingRate.cs" />
-    <Compile Include="Enums\SignalHint.cs" />
-    <Compile Include="Opus.cs" />
-    <Compile Include="OpusDecoder.cs" />
-    <Compile Include="OpusEncoder.cs" />
-    <Compile Include="OpusException.cs" />
-    <Compile Include="OpusWrapper.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="opus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
